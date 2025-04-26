@@ -48,7 +48,6 @@ if modo == "Simular secuencias":
         step=0.05
     )
 
-    # 🔵 CAMBIO AQUÍ: se sigue generando la matriz, pero NO se muestra
     P = []
     for i in range(len(vector_inicial)):
         fila = []
@@ -118,11 +117,6 @@ elif modo == "Analizar secuencias":
                 where=suma_filas != 0
             )
 
-            # 🔵 CAMBIO AQUÍ: ahora mostramos la matriz en el análisis
-            st.subheader("Matriz de transición observada")
-            df_real = pd.DataFrame(matriz_transicion_real, index=nombres_ia[:num_estados], columns=nombres_ia[:num_estados]).round(4)
-            st.dataframe(df_real, use_container_width=True)
-
             st.subheader("Vector de estado inicial observado")
             primeros_estados = df.iloc[:, 0]
             conteo_inicial = primeros_estados.value_counts(normalize=True).sort_index()
@@ -134,6 +128,9 @@ elif modo == "Analizar secuencias":
             })
             st.dataframe(df_inicial_real, use_container_width=True)
 
+            st.subheader("Matriz de transición observada")
+            df_real = pd.DataFrame(matriz_transicion_real, index=nombres_ia[:num_estados], columns=nombres_ia[:num_estados]).round(4)
+            st.dataframe(df_real, use_container_width=True)
 
             pasos_pronostico = st.number_input("Número de pasos a pronosticar", min_value=1, value=5)
             estado_futuro = np.matmul(np.linalg.matrix_power(matriz_transicion_real, pasos_pronostico), vector_inicial_real)
