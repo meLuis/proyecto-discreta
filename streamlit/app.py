@@ -26,6 +26,7 @@ def set_background(image_file):
 
 set_background("fondo.jpg")
 
+
 # --- Estilos para botones con imagen ---
 st.markdown("""
 <style>
@@ -49,6 +50,13 @@ st.markdown("""
     font-size: 1.2rem;
     color: white;
     font-weight: bold;
+}
+html, body, [class*="css"]  {
+    color: black !important;
+    font-size: 20px !important;
+}
+h1, h2, h3, h4, h5, h6 {
+    color: black !important;
 }
 </style>
 """, unsafe_allow_html=True)
