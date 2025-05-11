@@ -1,27 +1,133 @@
+import base64
+import os
 import streamlit as st
 import pandas as pd
 import numpy as np
 
+# Configuración de la página
 st.set_page_config(page_title="Simulación y Análisis de Cadenas de Márkov")
 
-modo = st.selectbox("Selecciona el modo", ["Simular secuencias", "Analizar secuencias"])
+# --- Fondo personalizado ---
+def set_background(image_file):
+    path = os.path.join(os.path.dirname(__file__), image_file)
+    with open(path, "rb") as f:
+        encoded = base64.b64encode(f.read()).decode()
+    css = f"""
+    <style>
+    .stApp {{
+        background-image: url("data:image/jpg;base64,{encoded}");
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+    }}
+    </style>
+    """
+    st.markdown(css, unsafe_allow_html=True)
 
+set_background("fondo.jpg")
+
+# --- Estilos para botones con imagen ---
+st.markdown("""
+<style>
+.boton-opcion {
+    display: inline-block;
+    margin: 40px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+.boton-opcion img {
+    width: 150px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.boton-opcion:hover {
+    transform: scale(1.05);
+}
+.boton-opcion p {
+    margin-top: 10px;
+    font-size: 1.2rem;
+    color: white;
+    font-weight: bold;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# --- Nombres de IA ---
 nombres_ia = ["ChatGPT", "Gemini", "Claude", "Copilot", "Perplexity"]
 
-if modo == "Simular secuencias":
+# --- Manejo del estado ---
+if "modo" not in st.session_state:
+    st.session_state.modo = None
+
+# --- Pantalla inicial con botones visuales ---
+if st.session_state.modo is None:
+    st.markdown("<h1 style='text-align: center; color: white;'>¿Qué deseas hacer?</h1>", unsafe_allow_html=True)
+
+    col1, col2, col3 = st.columns([1, 3, 1])
+    with col2:
+        c1, c2 = st.columns(2)
+
+        with c1:
+            if st.button("🌀 Simular secuencias", key="simular"):
+                st.session_state.modo = "Simular secuencias"
+                st.rerun()
+            st.markdown("""
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            .stButton > button {
+                background-image: url('https://img.icons8.com/clouds/200/000000/process.png');
+                background-repeat: no-repeat;
+                background-position: center top;
+                background-size: 80px;
+                padding-top: 100px;
+                padding-bottom: 20px;
+                font-size: 1.1rem;
+                font-weight: bold;
+                border-radius: 15px;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+                height: 160px;
+                width: 160px;
+                margin: auto;
+            }
+            </style>
+            """, unsafe_allow_html=True)
+
+        with c2:
+            if st.button("📊 Analizar secuencias", key="analizar"):
+                st.session_state.modo = "Analizar secuencias"
+                st.rerun()
+            st.markdown("""
+            <style>
+            .stButton > button:nth-child(2) {
+                background-image: url('https://img.icons8.com/clouds/200/000000/analytics.png');
+                background-repeat: no-repeat;
+                background-position: center top;
+                background-size: 80px;
+                padding-top: 100px;
+                padding-bottom: 20px;
+                font-size: 1.1rem;
+                font-weight: bold;
+                border-radius: 15px;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+                height: 160px;
+                width: 160px;
+                margin: auto;
+            }
+            </style>
+            """, unsafe_allow_html=True)
+
+
+# --- Simular secuencias ---
+elif st.session_state.modo == "Simular secuencias":
     st.title("Simulación de Cadenas de Márkov")
 
     st.subheader("Usuarios por herramienta (en millones)")
-
     usuarios_por_ia = []
     valores_defecto = [100, 50, 30, 20, 25]
     for i, nombre in enumerate(nombres_ia):
-        usuarios = st.number_input(
-            f"{nombre}",
-            min_value=0,
-            value=valores_defecto[i],
-            step=1
-        )
+        usuarios = st.slider(nombre, 0, 200, valores_defecto[i], 1)
         usuarios_por_ia.append(usuarios)
 
     usuarios_por_ia = np.array(usuarios_por_ia)
@@ -33,21 +139,18 @@ if modo == "Simular secuencias":
     else:
         vector_inicial = usuarios_por_ia / total_usuarios
 
-    df_vector = pd.DataFrame({
+    st.dataframe(pd.DataFrame({
         "IA": nombres_ia,
         "Probabilidad": vector_inicial.round(4)
-    })
-    st.dataframe(df_vector, use_container_width=True)
+    }), use_container_width=True)
 
     st.subheader("Parámetro de permanencia")
     stay_weight = st.slider(
         "Probabilidad de que un usuario se quede en la misma IA",
-        min_value=0.0,
-        max_value=1.0,
-        value=0.6,
-        step=0.05
+        0.0, 1.0, 0.6, 0.05
     )
 
+    # Crear matriz de transición
     P = []
     for i in range(len(vector_inicial)):
         fila = []
@@ -64,8 +167,8 @@ if modo == "Simular secuencias":
     P = np.array(P)
 
     st.subheader("Parámetros de simulación")
-    num_usuarios = st.number_input("Número de usuarios a simular", min_value=1, value=5)
-    pasos = st.number_input("Número de pasos por usuario", min_value=1, value=5)
+    num_usuarios = st.number_input("Número de usuarios a simular", 1, 1000, 5)
+    pasos = st.number_input("Número de pasos por usuario", 1, 100, 5)
 
     if st.button("Simular secuencias"):
         secuencias = []
@@ -83,24 +186,22 @@ if modo == "Simular secuencias":
             st.write(f"Usuario {idx}: {' → '.join(nombres)}")
 
         df_secuencias = pd.DataFrame(secuencias)
-        
         csv = df_secuencias.to_csv(index=False, header=False)
 
-        st.download_button(
-            "Descargar como CSV",
-            csv,
-            file_name="secuencias_simuladas.csv",
-            mime="text/csv"
-        )
+        st.download_button("Descargar como CSV", csv, "secuencias_simuladas.csv", "text/csv")
 
-elif modo == "Analizar secuencias":
+    if st.button("🔙 Volver al inicio"):
+        st.session_state.modo = None
+        st.rerun()
+
+# --- Analizar secuencias ---
+elif st.session_state.modo == "Analizar secuencias":
     st.title("Análisis de Secuencias de Cadenas de Márkov")
 
     uploaded_file = st.file_uploader("Sube un archivo CSV con las secuencias", type=["csv"])
     if uploaded_file:
         try:
             df = pd.read_csv(uploaded_file, header=None)
-
             num_estados = len(nombres_ia)
             conteo = np.zeros((num_estados, num_estados))
 
@@ -111,46 +212,42 @@ elif modo == "Analizar secuencias":
                     conteo[origen, destino] += 1
 
             suma_filas = conteo.sum(axis=1, keepdims=True)
-            matriz_transicion_real = np.divide(
-                conteo, suma_filas, 
-                out=np.zeros_like(conteo),
-                where=suma_filas != 0
-            )
+            matriz_transicion = np.divide(conteo, suma_filas, out=np.zeros_like(conteo), where=suma_filas != 0)
 
-            st.subheader("Vector de estado inicial observado")
             primeros_estados = df.iloc[:, 0]
             conteo_inicial = primeros_estados.value_counts(normalize=True).sort_index()
             vector_inicial_real = conteo_inicial.values
 
-            df_inicial_real = pd.DataFrame({
+            st.subheader("Vector de estado inicial observado")
+            st.dataframe(pd.DataFrame({
                 "IA": nombres_ia[:num_estados],
                 "Probabilidad": vector_inicial_real.round(4)
-            })
-            st.dataframe(df_inicial_real, use_container_width=True)
+            }), use_container_width=True)
 
             st.subheader("Matriz de transición observada")
-            df_real = pd.DataFrame(matriz_transicion_real, index=nombres_ia[:num_estados], columns=nombres_ia[:num_estados]).round(4)
-            st.dataframe(df_real, use_container_width=True)
+            st.dataframe(pd.DataFrame(matriz_transicion, index=nombres_ia, columns=nombres_ia).round(4), use_container_width=True)
 
-            pasos_pronostico = st.number_input("Número de pasos a pronosticar", min_value=1, value=5)
-            estado_futuro = np.matmul(np.linalg.matrix_power(matriz_transicion_real, pasos_pronostico), vector_inicial_real)
+            pasos_pronostico = st.number_input("Número de pasos a pronosticar", 1, 100, 5)
+            estado_futuro = np.matmul(np.linalg.matrix_power(matriz_transicion, pasos_pronostico), vector_inicial_real)
 
             st.subheader("Pronóstico de usuarios futuros")
-            df_estado_futuro = pd.DataFrame({
-                "IA": nombres_ia[:num_estados],
+            st.dataframe(pd.DataFrame({
+                "IA": nombres_ia,
                 f"Probabilidad a {pasos_pronostico} pasos": estado_futuro.round(4)
-            })
-            st.dataframe(df_estado_futuro, use_container_width=True)
+            }), use_container_width=True)
 
-            P_infinito = np.linalg.matrix_power(matriz_transicion_real, 1000)
+            P_infinito = np.linalg.matrix_power(matriz_transicion, 1000)
             estado_largo_plazo = P_infinito[0]
 
             st.subheader("Distribución estable de largo plazo")
-            df_largo_plazo = pd.DataFrame({
-                "IA": nombres_ia[:num_estados],
+            st.dataframe(pd.DataFrame({
+                "IA": nombres_ia,
                 "Probabilidad estable": estado_largo_plazo.round(4)
-            })
-            st.dataframe(df_largo_plazo, use_container_width=True)
+            }), use_container_width=True)
 
         except Exception as e:
             st.error(f"Error al procesar el archivo: {e}")
+
+    if st.button("🔙 Volver al inicio"):
+        st.session_state.modo = None
+        st.rerun()
