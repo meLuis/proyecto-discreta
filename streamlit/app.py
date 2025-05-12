@@ -51,13 +51,6 @@ st.markdown("""
     color: white;
     font-weight: bold;
 }
-html, body, [class*="css"]  {
-    color: black !important;
-    font-size: 20px !important;
-}
-h1, h2, h3, h4, h5, h6 {
-    color: black !important;
-}
 </style>
 """, unsafe_allow_html=True)
 
@@ -175,8 +168,10 @@ elif st.session_state.modo == "Simular secuencias":
     P = np.array(P)
 
     st.subheader("Parámetros de simulación")
-    num_usuarios = st.number_input("Número de usuarios a simular", 1, 1000, 5)
-    pasos = st.number_input("Número de pasos por usuario", 1, 100, 5)
+    st.subheader("Cantidad de usuarios a simular")
+    num_usuarios = st.number_input("Cantidad", min_value=1, max_value=1000, value=100, step=1)
+
+    pasos = 5  # Valor fijo no modificable
 
     if st.button("Simular secuencias"):
         secuencias = []
@@ -188,15 +183,12 @@ elif st.session_state.modo == "Simular secuencias":
                 historial.append(estado)
             secuencias.append(historial)
 
-        st.subheader("Secuencias simuladas")
-        for idx, secuencia in enumerate(secuencias, start=1):
-            nombres = [nombres_ia[i] for i in secuencia]
-            st.write(f"Usuario {idx}: {' → '.join(nombres)}")
-
         df_secuencias = pd.DataFrame(secuencias)
         csv = df_secuencias.to_csv(index=False, header=False)
 
+        st.markdown("<h4 style='color: white;'>⬇️ ¡Listo! Descarga las secuencias aquí:</h4>", unsafe_allow_html=True)
         st.download_button("Descargar como CSV", csv, "secuencias_simuladas.csv", "text/csv")
+
 
     if st.button("🔙 Volver al inicio"):
         st.session_state.modo = None
