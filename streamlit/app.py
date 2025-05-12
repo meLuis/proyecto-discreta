@@ -169,9 +169,10 @@ elif st.session_state.modo == "Simular secuencias":
 
     st.subheader("Parámetros de simulación")
     st.subheader("Cantidad de usuarios a simular")
-    num_usuarios = st.number_input("Cantidad", min_value=1, max_value=1000, value=100, step=1)
 
-    pasos = 5  # Valor fijo no modificable
+
+    num_usuarios = st.number_input("Cantidad de usuarios a simular", min_value=1, max_value=1000, value=100, step=1)
+    pasos = st.number_input("Cantidad de pasos a simular", min_value=1, max_value=100, value=5, step=1)
 
     if st.button("Simular secuencias"):
         secuencias = []
