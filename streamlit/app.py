@@ -65,7 +65,7 @@ if "modo" not in st.session_state:
 if st.session_state.modo is None:
     st.markdown("""
     <div style="text-align: center; background-color: rgba(0, 0, 0, 0.6); padding: 20px; border-radius: 15px; margin-bottom: 30px;">
-        <h2 style="color: white; margin: 0;">Desarrollado por Cade Korv</h2>
+        <h1 style="color: white; margin: 0;">CadeKorv</h2>
     </div>
     """, unsafe_allow_html=True)
 
