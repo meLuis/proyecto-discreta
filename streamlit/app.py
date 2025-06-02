@@ -63,6 +63,18 @@ if "modo" not in st.session_state:
 
 # --- Pantalla inicial con botones visuales ---
 if st.session_state.modo is None:
+    st.markdown("""
+    <div style='text-align: center; background-color: rgba(0, 0, 0, 0.6); padding: 20px; border-radius: 15px; margin-bottom: 30px;'>
+        <h3 style='color: white;'>Integrantes:</h3>
+        <p style='color: white; font-size: 18px;'>
+            Cabezas Díaz, Denis Alexis<br>
+            Gomero Del Rio, Mauro<br>
+            Espinoza Navarrete, Luis Manuel<br>
+            Loyola Rodriguez, Stefano Isaac
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
     st.markdown("<h1 style='text-align: center; color: white;'>¿Qué deseas hacer?</h1>", unsafe_allow_html=True)
 
     col1, col2, col3 = st.columns([1, 3, 1])
@@ -234,7 +246,7 @@ elif st.session_state.modo == "Analizar secuencias":
             st.subheader("Pronóstico de usuarios futuros")
             st.dataframe(pd.DataFrame({
                 "IA": nombres_ia,
-                f"Probabilidad a {pasos_pronostico} pasos": estado_futuro.round(4)
+                f"Vector de probabilidad en el periodo n={pasos_pronostico}": estado_futuro.round(4)
             }), use_container_width=True)
 
             P_infinito = np.linalg.matrix_power(matriz_transicion, 1000)
@@ -243,7 +255,7 @@ elif st.session_state.modo == "Analizar secuencias":
             st.subheader("Distribución estable de largo plazo")
             st.dataframe(pd.DataFrame({
                 "IA": nombres_ia,
-                "Probabilidad estable": estado_largo_plazo.round(4)
+                "Vector de probabilidad estacionario": estado_largo_plazo.round(4)
             }), use_container_width=True)
 
         except Exception as e:
