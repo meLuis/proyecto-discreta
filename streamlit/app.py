@@ -71,18 +71,6 @@ if st.session_state.modo is None:
 
     st.markdown("<h1 style='text-align: center; color: white; margin-bottom: 30px;'>¿Qué deseas hacer?</h1>", unsafe_allow_html=True)
 
-    st.markdown("""
-    <div style="text-align: center; background-color: rgba(0, 0, 0, 0.6); padding: 15px 20px; border-radius: 15px; margin-top: 40px;">
-        <h3 style="color: white; margin-bottom: 10px;">Integrantes:</h3>
-        <p style="color: white; font-size: 18px; line-height: 1.5; margin: 0;">
-            Cabezas Díaz, Denis Alexis<br>
-            Gomero Del Rio, Mauro<br>
-            Espinoza Navarrete, Luis Manuel<br>
-            Loyola Rodriguez, Stefano Isaac
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
-
     col1, col2, col3 = st.columns([1, 3, 1])
     with col2:
         c1, c2 = st.columns(2)
@@ -136,6 +124,18 @@ if st.session_state.modo is None:
             }
             </style>
             """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <div style="text-align: center; background-color: rgba(0, 0, 0, 0.6); padding: 15px 20px; border-radius: 15px; margin-top: 40px;">
+        <h3 style="color: white; margin-bottom: 10px;">Integrantes:</h3>
+        <p style="color: white; font-size: 18px; line-height: 1.5; margin: 0;">
+            Cabezas Díaz, Denis Alexis<br>
+            Gomero Del Rio, Mauro<br>
+            Espinoza Navarrete, Luis Manuel<br>
+            Loyola Rodriguez, Stefano Isaac
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
 
 
 # --- Simular secuencias ---
